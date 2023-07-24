@@ -1,14 +1,22 @@
 from tkinter import *
 from tkinter.ttk import Combobox, Separator
 
-from ava import hcaps, normalise
+from ava import hcaps, normalise, get_equiv
+
+
 
 def get_params():
     score = int(entry_score.get())
     bowstyle = combo_bowstyle.get()
     gender = combo_gender.get()
     round = combo_round.get()
-    label_conv_hcap_dynamic.config(text=normalise(score, round, bowstyle, gender))
+    hcap_norm = normalise(score, round, bowstyle, gender)
+    score_norm = get_equiv(hcap_norm, round)
+    label_conv_hcap_dynamic.config(text=hcap_norm)
+    label_equiv_dynamic.config(text=score_norm)
+
+
+
 
 window = Tk()
 window.geometry("400x300+50+50")
@@ -66,7 +74,7 @@ label_conv_hcap_dynamic.place(x=350, y=10)
 label_equiv_static = Label(window, text="Equiv. RM Score:")
 label_equiv_static.place(x=210, y=40)
 
-label_equiv_dynamic = Label(window, text="null")
+label_equiv_dynamic = Label(window, text="0000")
 label_equiv_dynamic.place(x=350, y=40)
 
 window.title("Archery Score Normaliser")

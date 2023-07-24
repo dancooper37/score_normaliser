@@ -40,8 +40,20 @@ def normalise(score, round, bowstyle, gender):
             adj -= 5.5
     return math.floor(adj)
 
+
+def get_equiv(handicap, round):
+    if "Compound" in round:
+        round = round.replace(" Compound", "")
+    return min(hcaps[hcaps[round] == handicap].index.values)
+
+
+
+
 normalise(1180, "York", "C", "W")
 
-
+"""
+if "Compound" in round:
+        return "n/a"
+    else:"""
 
 
