@@ -49,7 +49,6 @@ def get_equiv(handicap, round):
 
 
 
-normalise(1180, "York", "C", "W")
 
 """
 if "Compound" in round:
