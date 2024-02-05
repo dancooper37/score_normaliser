@@ -24,96 +24,69 @@ def get_raw(score, round):
     return hcaps.at[score, round]
 
 
-def normalise(score, round, bowstyle, gender):
-    raw = get_raw(score, round)
+def normalise(score, round_name, bowstyle, gender, indoor_mode):
+    if bowstyle == "C" and "Compound" not in round_name:
+        round_name += " Compound"
+    raw = get_raw(score, round_name)
     adj = raw
-    if bowstyle == "C":
-        adj = raw + (raw * 0.1667) + 12.5
-    elif bowstyle == "B":
-        adj = raw + (raw * 0.2727) - 29.818
-    elif bowstyle == "L":
-        adj = raw + (raw * 0.1667) - 45.833
-    if gender == "W":
-        if bowstyle == "R":
-            adj -= 5
-        elif bowstyle == "C":
-            adj -= 4
-        elif bowstyle == "B":
-            adj -= 5.5
-        elif bowstyle == "L":
-            adj -= 7
+    if indoor_mode:
+        match bowstyle:
+            case "C":
+                adj = raw + (raw * -0.0579) + 18.591
+            case "B":
+                adj = raw + (raw * 0.2065) - 19.807
+            case "L":
+                adj = raw + (raw * 0.1434) - 37.349
+            case _:
+                pass
+        match gender:
+            case 1:
+                print("W")
+                match bowstyle:
+                    case "R":
+                        adj -= 5
+                    case "C":
+                        adj -= 4
+                    case "B":
+                        adj -= 6
+                    case "L":
+                        adj -= 7
+    else:
+        match bowstyle:
+            case "C":
+                adj = raw + (raw * 0.1667) + 12.5
+            case "B":
+                adj = raw + (raw * 0.2727) - 29.818
+            case "L":
+                adj = raw + (raw * 0.1667) - 45.833
+            case _:
+                pass
+        match gender:
+            case 1:
+                print("W")
+                match bowstyle:
+                    case "R":
+                        adj -= 5
+                    case "C":
+                        adj -= 4
+                    case "B":
+                        adj -= 5.5
+                    case "L":
+                        adj -= 7
     return math.floor(adj)
 
-def normalise_outdoor(score, round, bowstyle, gender):
-    if bowstyle == "C":
-        round += " Compound"
-    raw = get_raw(score, round)
-    adj = raw
-    match bowstyle:
-        case "C":
-            adj = raw + (raw * 0.1667) + 12.5
-        case "B":
-            adj = raw + (raw * 0.2727) - 29.818
-        case "L":
-            adj = raw + (raw * 0.1667) - 45.833
-        case _:
-            pass
-    match gender:
-        case "W":
-            match bowstyle:
-                case "R":
-                    adj -= 5
-                case "C":
-                    adj -= 4
-                case "B":
-                    adj -= 5.5
-                case "L":
-                    adj -= 7
-    return math.floor(adj)
-
-def normalise_indoor(score, round, bowstyle, gender):
-    if bowstyle == "C":
-        round += " Compound"
-    raw = get_raw(score, round)
-    adj = raw
-    match bowstyle:
-        case "C":
-            adj = raw + (raw * 0.1667) + 12.5
-        case "B":
-            adj = raw + (raw * 0.2727) - 29.818
-        case "L":
-            adj = raw + (raw * 0.1667) - 45.833
-        case _:
-            pass
-    match gender:
-        case "W":
-            match bowstyle:
-                case "R":
-                    adj -= 5
-                case "C":
-                    adj -= 4
-                case "B":
-                    adj -= 5.5
-                case "L":
-                    adj -= 7
-    return math.floor(adj)
 
 def get_equiv(handicap, round):
+    handicap_list = []
     if "Compound" in round:
         round = round.replace(" Compound", "")
-    return min(hcaps[hcaps[round] == handicap].index.values)
-
-
-# def load_ianseo():
-
-
-
-
-
-
-"""
-if "Compound" in round:
-        return "n/a"
-    else:"""
-
-
+    try:
+        handicap_list = min(hcaps[hcaps[round] == handicap].index.values)
+    except ValueError:
+        while not handicap_list:
+            try:
+                handicap += 1
+                handicap_list = min(hcaps[hcaps[round] == handicap].index.values)
+            except ValueError:
+                continue
+    return handicap_list

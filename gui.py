@@ -5,15 +5,22 @@ from ttkthemes import ThemedTk
 
 import pandas as pd
 
-from ava import hcaps, normalise, normalise_outdoor, get_equiv
+from ava import hcaps, normalise, get_equiv
 
 bulk_import_file = pd.DataFrame()
 
+window = ThemedTk(theme="plastik", background=True)
+window.geometry("398x307+50+50")
+
+all_rounds = tkinter.BooleanVar()
+indoor = tkinter.BooleanVar(value=True)
+outdoor = tkinter.BooleanVar()
 
 def bulk_convert_hcap(score, bowstyle, gender, round):
-    if bowstyle == "C":
+    print(score, bowstyle, gender, round)
+    if bowstyle == "C" and "Compound" not in round:
         round += " Compound"
-    norm_hcap = normalise(score, round, bowstyle, gender)
+    norm_hcap = normalise(score, round, bowstyle, gender, indoor)
     return norm_hcap
 
 
@@ -22,15 +29,20 @@ def get_params_csv():
     if bulk_import_file.empty:
         score = int(entry_score.get())
         bowstyle = combo_bowstyle.get()
-        gender = combo_gender.get()
-        hcap_norm = normalise_outdoor(score, round, bowstyle, gender)
+        gender_str = combo_gender.get()
+        if gender_str == "M":
+            gender = 0
+        else:
+            gender = 1
+        hcap_norm = normalise(score, round, bowstyle, gender, indoor)
         score_norm = get_equiv(hcap_norm, round)
         label_conv_hcap_dynamic.config(text=hcap_norm)
         label_equiv_dynamic.config(text=score_norm)
-    elif "Local Bib" in bulk_import_file:
+    elif "WaID" in bulk_import_file:
+        bulk_import_file["Gender"].replace({0: "M", 1: "W"})
         bulk_import_file["norm_hcap"] = bulk_import_file.apply(
-            lambda x: bulk_convert_hcap(x.Score, x.Division, x.Class, round), axis=1)
-        print(bulk_import_file[["GivenName", "FamilyName", "Target", "Country", "Score", "norm_hcap"]].sort_values(
+            lambda x: bulk_convert_hcap(x.Score, x.Division, x.Gender, round), axis=1)
+        print(bulk_import_file[["GivenName", "FamilyName", "Country", "Division", "Class", "Gender", "Score", "norm_hcap"]].sort_values(
             "norm_hcap"))
     else:
         bulk_import_file["norm_hcap"] = bulk_import_file.apply(
@@ -54,11 +66,11 @@ def import_ianseo():
     bulk_import_file = pd.read_csv(filename, delimiter=";")
     status_text = "Status: " + str(len(bulk_import_file)) + " Archers Found"
     label_status.configure(text=status_text)
-    print(bulk_import_file[["WaID", "GivenName", "FamilyName", "Division", "Class", "Score"]])
+    print(bulk_import_file[["WaID", "GivenName", "FamilyName", "Country", "Division", "Class", "Score"]])
+    get_params_csv()
 
 
-window = ThemedTk(theme="plastik", background=True)
-window.geometry("398x307+50+50")
+
 
 label_score = ttk.Label(window, text="Score:")
 label_score.place(x=10, y=10)
@@ -83,9 +95,7 @@ combo_gender.place(x=105, y=70)
 separator = ttk.Separator(window, orient='horizontal')
 separator.place(x=0, y=105, width=200)
 
-all_rounds = tkinter.BooleanVar()
-indoor = tkinter.BooleanVar()
-outdoor = tkinter.BooleanVar()
+
 
 
 def get_round_list(show_all, indoor_check, outdoor_check):
@@ -114,10 +124,21 @@ def get_round_list(show_all, indoor_check, outdoor_check):
 check_full_rounds = ttk.Checkbutton(window, text="Show All", variable=all_rounds)
 check_full_rounds.place(x=120, y=115)
 
-check_indoor = ttk.Checkbutton(window, text="Indoor", variable=indoor)
+def in_check_press():
+    if indoor.get() == 1:
+        outdoor.set(0)
+    elif indoor.get() == 0:
+        outdoor.set(1)
+def out_check_press():
+    if outdoor.get() == 1:
+        indoor.set(0)
+    elif outdoor.get() == 0:
+        indoor.set(1)
+
+check_indoor = ttk.Checkbutton(window, text="Indoor", variable=indoor, command=in_check_press) # lambda here for the command
 check_indoor.place(x=10, y=165)
 
-check_outdoor = ttk.Checkbutton(window, text="Outdoor", variable=outdoor)
+check_outdoor = ttk.Checkbutton(window, text="Outdoor", variable=outdoor, command=out_check_press)
 check_outdoor.place(x=70, y=165)
 
 label_round = ttk.Label(window, text="Round:")

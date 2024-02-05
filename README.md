@@ -15,3 +15,5 @@ WIP:
 - Normalisaiton of handicaps between different rounds in the same result set (i.e. between a 90m 1440 and a 70m 1440)
 - Automatic conversion between triple face and single face variants of the same round. The handicaps only differ once you start having misses on the triple spot, ideally archers woudn't be shooting the triple face in these scenarios anyway. Low priority as this is an edge case.
 - Better documentation (read: any documentation)
+
+I apologise in advance if you decide to critique my code. It's bad. I know. :P
