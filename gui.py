@@ -5,7 +5,7 @@ from ttkthemes import ThemedTk
 
 import pandas as pd
 
-from ava import hcaps, normalise, get_equiv
+from ava import hcaps, normalise, get_equiv, get_raw
 
 bulk_import_file = pd.DataFrame()
 
@@ -16,11 +16,14 @@ all_rounds = tkinter.BooleanVar()
 indoor = tkinter.BooleanVar(value=True)
 outdoor = tkinter.BooleanVar()
 
-def bulk_convert_hcap(score, bowstyle, gender, round):
-    print(score, bowstyle, gender, round)
-    if bowstyle == "C" and "Compound" not in round:
-        round += " Compound"
-    norm_hcap = normalise(score, round, bowstyle, gender, indoor)
+rounds_with_compound_variant = ["Bray I", "Bray II", "Portsmouth", "WA 18", "WA 25", "WA Combined", "WA 50"]
+
+
+def bulk_convert_hcap(score, bowstyle, gender, round_name):
+    print(score, bowstyle, gender, round_name)
+    if bowstyle == "C" and "Compound" not in round_name and round_name in rounds_with_compound_variant:
+        round_name += " Compound"
+    norm_hcap = normalise(score, round_name, bowstyle, gender, indoor)
     return norm_hcap
 
 
@@ -39,10 +42,11 @@ def get_params_csv():
         label_conv_hcap_dynamic.config(text=hcap_norm)
         label_equiv_dynamic.config(text=score_norm)
     elif "WaID" in bulk_import_file:
-        bulk_import_file["Gender"].replace({0: "M", 1: "W"})
+        bulk_import_file["raw_hcap"] = bulk_import_file.apply(
+            lambda m: get_raw(m.Score, round, m.Division), axis=1)
         bulk_import_file["norm_hcap"] = bulk_import_file.apply(
             lambda x: bulk_convert_hcap(x.Score, x.Division, x.Gender, round), axis=1)
-        print(bulk_import_file[["GivenName", "FamilyName", "Country", "Division", "Class", "Gender", "Score", "norm_hcap"]].sort_values(
+        print(bulk_import_file[["GivenName", "FamilyName", "Country", "Division", "Class", "Gender", "Score", "raw_hcap", "norm_hcap"]].sort_values(
             "norm_hcap"))
     else:
         bulk_import_file["norm_hcap"] = bulk_import_file.apply(

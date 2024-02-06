@@ -19,15 +19,17 @@ import math
 
 hcaps = pd.read_csv("reverse_lookup_table.csv")
 
+rounds_with_compound_variant = ["Bray I", "Bray II", "Portsmouth", "WA 18", "WA 25", "WA Combined", "WA 50"]
 
-def get_raw(score, round):
+def get_raw(score, round, bowstyle):
+    if bowstyle == "C" and "Compound" not in round and round in rounds_with_compound_variant:
+        round += " Compound"
     return hcaps.at[score, round]
 
 
+
 def normalise(score, round_name, bowstyle, gender, indoor_mode):
-    if bowstyle == "C" and "Compound" not in round_name:
-        round_name += " Compound"
-    raw = get_raw(score, round_name)
+    raw = get_raw(score, round_name, bowstyle)
     adj = raw
     if indoor_mode:
         match bowstyle:
