@@ -100,8 +100,6 @@ separator = ttk.Separator(window, orient='horizontal')
 separator.place(x=0, y=105, width=200)
 
 
-
-
 def get_round_list(show_all, indoor_check, outdoor_check):
     rounds = []
     if indoor_check and not show_all:
