@@ -16,4 +16,6 @@ WIP:
 - Automatic conversion between triple face and single face variants of the same round. The handicaps only differ once you start having misses on the triple spot, ideally archers woudn't be shooting the triple face in these scenarios anyway. Low priority as this is an edge case.
 - Better documentation (read: any documentation)
 
-I apologise in advance if you decide to critique my code. It's bad. I know. :P
+# Installation 
+
+Navigate to "Releases" on the sidebar to the right. Download the .exe from the latest release and run!
